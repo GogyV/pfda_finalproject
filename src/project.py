@@ -18,13 +18,18 @@ class DungeonDelversCodex:
         self.characters = []
 
     def create_new_character(self):
+        new_window = tk.Toplevel(self.root)
+        new_window.title("Create New Character")
+        tk.Label(new_window, text="Character Name:").pack()
+        name_entry = tk.Entry(new_window)
+        name_entry.pack()
+        tk.Button(new_window, text="Save", command=lambda: self.save_character(name_entry.get())).pack()
 
-    
     def save_character(self, name):
 
 
     def view_characters(self):
-        
+
 
 if __name__ == "__main__":
     root = tk.Tk()
