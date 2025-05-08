@@ -40,7 +40,14 @@ class DungeonDelversCodex:
 
 
     def view_characters(self):
-
+        if not self.characters:
+            messagebox.showinfo("No Characters", "No characters have been created yet.")
+            return
+        
+        view_window = tk.Toplevel(self.root)
+        view_window.title("Existing Characters")
+        for char in self.characters:
+            tk.Label(view_window, text=f"{char['name']} - HP: {char['hp']}").pack()
 
 if __name__ == "__main__":
     root = tk.Tk()
