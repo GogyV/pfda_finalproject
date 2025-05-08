@@ -12,12 +12,6 @@ class DungeonDelversCodex:
 
         self.characters = []
         self.load_from_file()
-        self.load_characters()
-        self.main_menu
-
-    def main_menu(self):
-        for widget in self.root.winfo_children():
-            widget.destroy()
         
         tk.Label(root, text="Dungeon Delver's Codex", font=("Rage Italic", 80)).pack(pady=20)
         tk.Button(root, text="Create New Character", width=30, command=self.create_new_character).pack(pady=5)
@@ -219,19 +213,14 @@ Class: {character.get('class', 'N/A')} (Lvl {character.get('level', '?')}) - {ch
         label.config(text=f"{stat}: {character['stats'][stat]}")
 
     def save_and_exit(self):
-        self.save_to_file()
-        self.root.quit()
-
-    def save_to_file(self):
         with open("characters.json", "w") as f:
-            json.dump(self.characters, f, indent=2)
+            json.dump(self.characters, f, indent=5)
+        self.root.destroy()
     
     def load_from_file(self):
-        try:
+        if os.path.exists("characters.json"):
             with open("characters.json", "r") as f:
                 self.characters = json.load(f)
-        except FileNotFoundError:
-            self.characters = []
 
 if __name__ == "__main__":
     root = tk.Tk()
