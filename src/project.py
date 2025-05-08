@@ -13,77 +13,94 @@ class DungeonDelversCodex:
         self.characters = []
         self.load_from_file()
         
-        tk.Label(root, text="Dungeon Delver's Codex", font=("Rage Italic", 80)).pack(pady=20)
-        tk.Button(root, text="Create New Character", width=30, command=self.create_new_character).pack(pady=5)
-        tk.Button(root, text="View Created Characters", width=30, command=self.view_characters).pack(pady=5)
-        tk.Button(root, text="Exit", width=30, command=self.save_and_exit).pack(pady=20)
+        frame = tk.Frame(self.root, padx=20, pady=20)
+        frame.pack(expand=True)
+
+        tk.Label(frame, text="Dungeon Delver's Codex", font=("Rage Italic", 80)).grid(row=0, column=0, columnspan=2, pady=(0, 20))
+        tk.Button(frame, text="Create New Character", width=25, command=self.create_new_character).grid(row=1, column=0, padx=10, pady=10)
+        tk.Button(frame, text="View Characters", width=25, command=self.view_characters).grid(row=1, column=1, padx=10, pady=10)
+        tk.Button(frame, text="Exit", width=25, command=self.save_and_exit).grid(row=2, column=0, columnspan=2, pady=20)
 
     def create_new_character(self):
         popup = tk.Toplevel(self.root)
         popup.title("New Character")
 
-        tk.Label(popup, text="Name:").pack()
-        name_entries = tk.Entry(popup)
-        name_entries.pack()
+        content = tk.Frame(popup, padx=10, pady=10)
+        content.pack()
 
-        tk.Label(popup, text="HP:").pack()
-        hp_entry = tk.Entry(popup)
-        hp_entry.pack()
+        row = 0
+        tk.Label(content, text="Name:").grid(row=row, column=0, sticky="e")
+        name_entries = tk.Entry(content)
+        name_entries.grid(row=row, column=1, pady=2)
+
+        row += 1
+        tk.Label(content, text="HP:").grid(row=row, column=0, sticky="e")
+        hp_entry = tk.Entry(content)
+        hp_entry.grid(row=row, column=1, pady=2)
 
         stat = {}
         stat_labels = ["STR", "DEX", "CON", "INT", "WIS", "CHA"]
         stat_entries = {}
         for stat in stat_labels:
-            tk.Label(popup, text=f"{stat}:").pack()
-            entry = tk.Entry(popup)
-            entry.pack()
+            row += 1
+            tk.Label(content, text=f"{stat}:").grid(row=row, column=0, sticky="e")
+            entry = tk.Entry(content)
+            entry.grid(row=row, column=1, pady=2)
             stat_entries[stat] = entry
         
-        # Species
-        tk.Label(popup, text="Species:").pack()
+        row += 1
+        tk.Label(content, text="Species:").grid(row=row, column=0, sticky="e")
         species_var = tk.StringVar()
         species_options = ["Human", "Elf", "Dwarf", "Halfling", "Dragonborn", "Gnome", "Half-Orc", "Tiefling", "Aasimar", "Tabaxi", "Kitsune", "Yuan-ti", "Shifter", "Harpy"]
-        ttk.Combobox(popup, textvariable=species_var, values=species_options, state="readonly").pack()
+        ttk.Combobox(content, textvariable=species_var, values=species_options, state="readonly").grid(row=row, column=1, pady=2)
 
-        # Alignment
-        tk.Label(popup, text="Alignment:").pack()
+        row += 1
+        tk.Label(content, text="Alignment:").grid(row=row, column=0, sticky="e")
         alignment_var = tk.StringVar()
         alignment_options = [
             "Lawful Good", "Neutral Good", "Chaotic Good",
             "Lawful Neutral", "True Neutral", "Chaotic Neutral",
             "Lawful Evil", "Neutral Evil", "Chaotic Evil"
         ]
-        ttk.Combobox(popup, textvariable=alignment_var, values=alignment_options, state="readonly").pack()
+        ttk.Combobox(content, textvariable=alignment_var, values=alignment_options, state="readonly").grid(row=row, column=1, pady=2)
 
-        # Class, Subclass, Level
-        tk.Label(popup, text="Class:").pack()
+        row += 1
+        tk.Label(content, text="Class:").grid(row=row, column=0, sticky="e")
         class_var = tk.StringVar()
         class_options = ["Barbarian", "Bard", "Cleric", "Druid", "Fighter", "Monk", "Paladin", "Ranger", "Rogue", "Sorcerer", "Warlock", "Wizard", "Artificer"]
-        ttk.Combobox(popup, textvariable=class_var, values=class_options, state="readonly").pack()
+        ttk.Combobox(content, textvariable=class_var, values=class_options, state="readonly").grid(row=row, column=1, pady=2)
 
-        tk.Label(popup, text="Subclass:").pack()
-        subclass_entry = tk.Entry(popup)
-        subclass_entry.pack()
 
-        tk.Label(popup, text="Level:").pack()
-        level_entry = tk.Entry(popup)
-        level_entry.pack()
+        row += 1
+        tk.Label(content, text="Subclass:").grid(row=row, column=0, sticky="e")
+        subclass_entry = tk.Entry(content)
+        subclass_entry.grid(row=row, column=1, pady=2)
 
+        row += 1
+        tk.Label(content, text="Level:").grid(row=row, column=0, sticky="e")
+        level_entry = tk.Entry(content)
+        level_entry.grid(row=row, column=1, pady=2)
+
+        row += 1
         is_multiclass = tk.BooleanVar()
-        tk.Checkbutton(popup, text="Multiclass?", variable=is_multiclass).pack()
+        tk.Checkbutton(content, text="Multiclass?", variable=is_multiclass).grid(row=row, column=0, columnspan=2, pady=5)
 
-        tk.Label(popup, text="Second Class:").pack()
+        row += 1
+        tk.Label(content, text="Second Class:").grid(row=row, column=0, sticky="e")
         second_class_var = tk.StringVar()
-        ttk.Combobox(popup, textvariable=second_class_var, values=class_options, state="readonly").pack()
+        ttk.Combobox(content, textvariable=second_class_var, values=class_options, state="readonly").grid(row=row, column=1, pady=2)
 
-        tk.Label(popup, text="Second Subclass:").pack()
-        second_subclass_entry = tk.Entry(popup)
-        second_subclass_entry.pack()
+        row += 1
+        tk.Label(content, text="Second Subclass:").grid(row=row, column=0, sticky="e")
+        second_subclass_entry = tk.Entry(content)
+        second_subclass_entry.grid(row=row, column=1, pady=2)
 
-        tk.Label(popup, text="Second Level:").pack()
-        second_level_entry = tk.Entry(popup)
-        second_level_entry.pack()
+        row += 1
+        tk.Label(content, text="Second Level:").grid(row=row, column=0, sticky="e")
+        second_level_entry = tk.Entry(content)
+        second_level_entry.grid(row=row, column=1, pady=2)
 
+        row += 1
         def save():
             stats = {stat: int(stat_entries[stat].get()) for stat in stat_labels}
             character = {
@@ -106,7 +123,8 @@ class DungeonDelversCodex:
             self.characters.append(character)
             popup.destroy()
 
-        tk.Button(popup, text="Save Character", command=save).pack(pady=10)
+        row += 1
+        tk.Button(content, text="Save Character", command=save).grid(row=row, column=0, columnspan=2, pady=10)
 
     def view_characters(self):
          view_window = tk.Toplevel(self.root)
