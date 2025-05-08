@@ -10,7 +10,7 @@ class DungeonDelversCodex:
         tk.Label(root, text="Dungeon Delver's Codex", font=("Rage Italic", 80)).pack(pady=20)
         tk.Button(root, text="Create New Character", width=30, command=self.create_new_character).pack(pady=5)
         tk.Button(root, text="View Created Characters", width=30, command=self.view_characters).pack(pady=5)
-        tk.Button(root, text="Exit", width=30, command=root.save_and_exit).pack(pady=20)
+        tk.Button(root, text="Exit", width=30, command=self.save_and_exit).pack(pady=20)
 
         self.characters = []
         self.load_from_file()
@@ -65,54 +65,72 @@ class DungeonDelversCodex:
         sheet = tk.Toplevel(self.root)
         sheet.title(f"{character['name']}'s Sheet")
 
-        hp_label = tk.Label(sheet, text=f"HP: {character['hp']}")
-        hp_label.pack()
+        tk.Label(sheet, text=f"{character['name']}'s Character Sheet", font=("Helvetica", 14, "bold")).pack(pady=(5, 10))
+        hp_frame = tk.Frame(sheet)
+        hp_frame.pack()
+        hp_label = tk.Label(hp_frame, text=f"HP: {character['hp']}", font=("Helvetica", 12))
+        hp_label.pack(side=tk.LEFT, padx=10)
+        tk.Button(hp_frame, text="+1", command=lambda: self.change_hp(character, 1, hp_label)).pack(side=tk.LEFT)
+        tk.Button(hp_frame, text="-1", command=lambda: self.change_hp(character, -1, hp_label)).pack(side=tk.LEFT)
 
-        def change_hp(amount):
-            character['hp'] += amount
-            hp_label.config(text=f"HP: {character['hp']}")
-            tk.Button(sheet, text="+1 HP", command=lambda: change_hp(1)).pack()
-            tk.Button(sheet, text="-1 HP", command=lambda: change_hp(-1)).pack()
+        tk.Label(sheet, text="Stats:", font=("Rage Italic", 50, "underline")).pack(pady=(10, 5))
+        for stat, value in character["stats"].items():
+            stat_frame = tk.Frame(sheet)
+            stat_frame.pack(pady=2)
+            label = tk.Label(stat_frame, text=f"{stat}: {value}", width=20)
+            label.pack(side=tk.LEFT)
+            tk.Button(stat_frame, text="+", command=lambda s=stat, l=label: self.adjust_stat(character, s, 1, l)).pack(side=tk.LEFT)
+            tk.Button(stat_frame, text="-", command=lambda s=stat, l=label: self.adjust_stat(character, s, -1, l)).pack(side=tk.LEFT)
 
-            stat_labels = {}
-            tk.Label(sheet, text="Stats:").pack()
-            for stat, value in character["stats"].items():
-                frame = tk.Frame(sheet)
-                frame.pack()
-                label = tk.Label(frame, text=f"{stat}: {value}", width=20)
-                label.pack(side=tk.LEFT)
-                tk.Button(frame, text="+", command=lambda s=stat: self.adjust_stat(character, s, 1, label)).pack(side=tk.LEFT)
-                tk.Button(frame, text="-", command=lambda s=stat: self.adjust_stat(character, s, -1, label)).pack(side=tk.LEFT)
-                stat_labels[stat] = label
+        tk.Label(sheet, text="Inventory:", font=("Rage Italic", 50, "underline")).pack(pady=(10, 5))
+        inv_box = tk.Listbox(sheet, height=20, width=60)
+        inv_box.pack()
+
+        for item in character["inventory"]:
+            inv_box.insert(tk.END, item)
+        
+        item_entry = tk.Entry(sheet)
+        item_entry.pack(pady=5)
+
+        def add_item():
+            item = item_entry.get().strip()
+            if item:
+                character["inventory"].append(item)
+                inv_box.insert(tk.END, item)
+                item_entry.delete(0, tk.END)
             
-            tk.Label(sheet, text="Inventory:").pack()
-            inv_box = tk.Listbox(sheet, height=5)
-            inv_box.pack()
-            for Item in character["Inventory"]:
-                inv_box.pack()
-            item_entry = tk.Entry(sheet)
-            item_entry.pack()
+        def remove_selected_item():
+            selected = inv_box.curselection()
+            if selected:
+                index = selected[0]
+                inv_box.delete(index)
+                del character["inventory"][index]
 
-            def add_item():
-                item = item_entry.get().strip()
-                if item:
-                    character["inventory"].append(item)
-                    inv_box.insert(tk.END, item)
-                    item_entry.delete(0, tk.END)
-            
-            def remove_selected_item():
-                selected = inv_box.curselection()
-                if selected:
-                    index = selected[0]
-                    inv_box.delete(index)
-                    del character["inventory"][index]
+        tk.Button(sheet, text="Add Item", command=add_item).pack()
+        tk.Button(sheet, text="Remove Selected", command=remove_selected_item).pack()
 
-            tk.Button(sheet, text="Add Item", command=add_item).pack()
-            tk.Button(sheet, text="Remove Selected", command=remove_selected_item).pack()
-                
+    def change_hp(self, character, amount, label):
+            character["hp"] += amount
+            label.config(text=f"HP: {character['hp']}")
+
     def adjust_stat(self, character, stat, amount, label):
         character["stats"][stat] += amount
         label.config(text=f"{stat}: {character['stats'][stat]}")
+
+    def save_and_exit(self):
+        self.save_to_file()
+        self.root.quit()
+
+    def save_to_file(self):
+        with open("characters.json", "w") as f:
+            json.dump(self.characters, f, indent=2)
+    
+    def load_from_file(self):
+        try:
+            with open("characters.json", "r") as f:
+                self.characters = json.load(f)
+        except FileNotFoundError:
+            self.characters = []
 
 if __name__ == "__main__":
     root = tk.Tk()
