@@ -1,21 +1,20 @@
 import tkinter as tk
 from tkinter import messagebox
+import json
 
 class DungeonDelversCodex:
     def __init__(self, root):
         self.root = root
         self.root.title("Dungeon Delver's Codex")
-        self.root.geometry("800x600")
-        self.title_label = tk.Label(root, text="Dungeon Delver's Codex", font=("Rage Italic", 50))
-        self.title_label.pack(pady=20)
-        self.new_char_button = tk.Button(root, text="Create New Character", width=30, command=self.create_new_character)
-        self.new_char_button.pack(pady=5)
-        self.view_chars_button = tk.Button(root, text="View Created Characters", width=30, command=self.view_characters)
-        self.view_chars_button.pack(pady=5)
-        self.exit_button = tk.Button(root, text="Exit", width=30, command=root.quit)
-        self.exit_button.pack(pady=20)
+        self.root.geometry("1000x700")
+        tk.Label(root, text="Dungeon Delver's Codex", font=("Rage Italic", 80)).pack(pady=20)
+        tk.Button(root, text="Create New Character", width=30, command=self.create_new_character).pack(pady=5)
+        tk.Button(root, text="View Created Characters", width=30, command=self.view_characters).pack(pady=5)
+        tk.Button(root, text="Exit", width=30, command=root.save_and_exit).pack(pady=20)
 
         self.characters = []
+        self.load_from_file()
+
 
     def create_new_character(self):
         new_window = tk.Toplevel(self.root)
@@ -28,36 +27,49 @@ class DungeonDelversCodex:
             name_entry = tk.Entry(new_window)
             name_entry.pack()
             name_entries[field] = name_entry
+        
+        def save():
+            try:
+                name = name_entries["Name"].get().strip()
+                if not name:
+                    raise ValueError("Name is required.")
+                
+                hp = int(name_entries["HP"].get())
+                stats = {key: int(name_entries[key].get()) for key in ["STR", "DEX", "CON", "INT", "WIS", "CHA"]}
 
-        tk.Button(
-        new_window,
-        text="Save",
-        command=lambda: self.save_character(name_entries)
-    ).pack()
+                self.characters.append({
+                    "name": name,
+                    "hp": hp,
+                    "stats": stats,
+                    "inventory": [],
+                    "equipment": {}
+                })
+                messagebox.showinfo("Saved", f"Character '{name}' created!")
+                new_window.destroy()
+            except ValueError as e:
+                messagebox.showwarning("Invalid Input", str(e))
 
-    def save_character(self, name):
-        if name:
-            self.characters.append({
-                "name": name,
-                "hp": 10,
-                "stats": {"STR": 10, "DEX": 10, "CON": 10, "INT": 10, "WIS": 10, "CHA": 10},
-                "inventory": [],
-                "equipment": {}
-            })
-            messagebox.showinfo("Saved", f"Character '{name}' created!")
-        else:
-            messagebox.showwarning("Missing Name", "Please enter a name for your character.")
+        tk.Button(new_window, text="Save Character", command=save).pack(pady=10)
 
-
-    def view_characters(self):
-        if not self.characters:
+    def view_character(self):
+         if not self.characters:
             messagebox.showinfo("No Characters", "No characters have been created yet.")
             return
         
-        view_window = tk.Toplevel(self.root)
-        view_window.title("Existing Characters")
-        for char in self.characters:
-            tk.Label(view_window, text=f"{char['name']} - HP: {char['hp']}").pack()
+    view_window = tk.Toplevel(self.root)
+    view_window.title("Created Characters")
+    
+    for idx, char in enumerate(self.characters):
+        tk.Button(view_window, text=f"{char['name']} - HP: {char['hp']}", command=lambda i=idx: self.open_character_sheet(i)).pack(pady=2)
+
+    def open_character_sheet (self. index):
+        character = self.characters[index]
+        sheet = tk.Toplevel(self.root)
+        sheet.title(f"{character['name']}'s Sheet")
+
+        hp_label = tk.Label(sheet, text=f"HP: {character['hp']}")
+        hp_label.pack()
+
 
 if __name__ == "__main__":
     root = tk.Tk()
