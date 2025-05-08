@@ -125,10 +125,19 @@ class DungeonDelversCodex:
         sheet = tk.Toplevel(self.root)
         sheet.title(f"{character['name']}'s Sheet")
 
-        tk.Label(sheet, text=f"{character['name']}'s Character Sheet", font=("Helvetica", 14, "bold")).pack(pady=(5, 10))
+
+        info_text = f"""
+Species: {character.get('species', 'N/A')}
+Alignment: {character.get('alignment', 'N/A')}
+Class: {character.get('class', 'N/A')} (Lvl {character.get('level', '?')}) - {character.get('subclass', '')}
+"""
+        if character.get("multiclass"):
+            info_text += f"Multiclass: {character.get('second_class', 'N/A')} (Lvl {character.get('second_level', '?')}) - {character.get('second_subclass', '')}"
+        tk.Label(sheet, text=info_text.strip(), justify="left").pack(pady=(5, 10))
+
         hp_frame = tk.Frame(sheet)
         hp_frame.pack()
-        hp_label = tk.Label(hp_frame, text=f"HP: {character['hp']}", font=("Helvetica", 12))
+        hp_label = tk.Label(hp_frame, text=f"HP: {character['hp']}", font=("Rage Italic", 40))
         hp_label.pack(side=tk.LEFT, padx=10)
         tk.Button(hp_frame, text="+1", command=lambda: self.change_hp(character, 1, hp_label)).pack(side=tk.LEFT)
         tk.Button(hp_frame, text="-1", command=lambda: self.change_hp(character, -1, hp_label)).pack(side=tk.LEFT)
@@ -145,7 +154,6 @@ class DungeonDelversCodex:
         tk.Label(sheet, text="Inventory:", font=("Rage Italic", 50, "underline")).pack(pady=(10, 5))
         inv_box = tk.Listbox(sheet, height=10, width=30)
         inv_box.pack()
-
         for item in character["inventory"]:
             inv_box.insert(tk.END, item)
         
@@ -154,6 +162,8 @@ class DungeonDelversCodex:
 
         img_frame = tk.Frame(sheet)
         img_frame.pack(pady=10)
+        image_label = tk.Label(img_frame)
+        image_label.pack()
 
         def load_profile_image(path):
             img = Image.open(path)
@@ -201,8 +211,8 @@ class DungeonDelversCodex:
         tk.Button(sheet, text="Remove Selected", command=remove_selected_item).pack()
 
     def change_hp(self, character, amount, label):
-            character["hp"] += amount
-            label.config(text=f"HP: {character['hp']}")
+        character["hp"] += amount
+        label.config(text=f"HP: {character['hp']}")
 
     def adjust_stat(self, character, stat, amount, label):
         character["stats"][stat] += amount
