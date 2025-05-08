@@ -5,8 +5,8 @@ class DungeonDelversCodex:
     def __init__(self, root):
         self.root = root
         self.root.title("Dungeon Delver's Codex")
-        self.root.geometry("500x400")
-        self.title_label = tk.Label(root, text="Dungeon Delver's Codex", font=("Helvetica", 18))
+        self.root.geometry("800x600")
+        self.title_label = tk.Label(root, text="Dungeon Delver's Codex", font=("Rage Italic", 50))
         self.title_label.pack(pady=20)
         self.new_char_button = tk.Button(root, text="Create New Character", width=30, command=self.create_new_character)
         self.new_char_button.pack(pady=5)
@@ -20,10 +20,20 @@ class DungeonDelversCodex:
     def create_new_character(self):
         new_window = tk.Toplevel(self.root)
         new_window.title("Create New Character")
-        tk.Label(new_window, text="Character Name:").pack()
-        name_entry = tk.Entry(new_window)
-        name_entry.pack()
-        tk.Button(new_window, text="Save", command=lambda: self.save_character(name_entry.get())).pack()
+        fields = ["Name", "HP", "STR", "DEX", "CON", "INT", "WIS", "CHA"]
+        name_entries = {}
+
+        for field in fields:
+            tk.Label(new_window, text=f"{field}:").pack()
+            name_entry = tk.Entry(new_window)
+            name_entry.pack()
+            name_entries[field] = name_entry
+
+        tk.Button(
+        new_window,
+        text="Save",
+        command=lambda: self.save_character(name_entries)
+    ).pack()
 
     def save_character(self, name):
         if name:
