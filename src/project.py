@@ -1,69 +1,124 @@
 import tkinter as tk
-from tkinter import messagebox
-from tkinter import filedialog
-from tkinter import ttk
+from tkinter import ttk, filedialog
 from PIL import Image, ImageTk
 import json
+import os
 
 class DungeonDelversCodex:
     def __init__(self, root):
         self.root = root
         self.root.title("Dungeon Delver's Codex")
         self.root.geometry("1000x700")
+
+        self.characters = []
+        self.load_from_file()
+        self.load_characters()
+        self.main_menu
+
+    def main_menu(self):
+        for widget in self.root.winfo_children():
+            widget.destroy()
+        
         tk.Label(root, text="Dungeon Delver's Codex", font=("Rage Italic", 80)).pack(pady=20)
         tk.Button(root, text="Create New Character", width=30, command=self.create_new_character).pack(pady=5)
         tk.Button(root, text="View Created Characters", width=30, command=self.view_characters).pack(pady=5)
         tk.Button(root, text="Exit", width=30, command=self.save_and_exit).pack(pady=20)
 
-        self.characters = []
-        self.load_from_file()
-
-
     def create_new_character(self):
-        new_window = tk.Toplevel(self.root)
-        new_window.title("Create New Character")
-        fields = ["Name", "HP", "STR", "DEX", "CON", "INT", "WIS", "CHA"]
-        name_entries = {}
+        popup = tk.Toplevel(self.root)
+        popup.title("New Character")
 
-        for field in fields:
-            tk.Label(new_window, text=f"{field}:").pack()
-            name_entry = tk.Entry(new_window)
-            name_entry.pack()
-            name_entries[field] = name_entry
+        tk.Label(popup, text="Name:").pack()
+        name_entries = tk.Entry(popup)
+        name_entries.pack()
 
+        tk.Label(popup, text="HP:").pack()
+        hp_entry = tk.Entry(popup)
+        hp_entry.pack()
+
+        stat = {}
+        stat_labels = ["STR", "DEX", "CON", "INT", "WIS", "CHA"]
+        stat_entries = {}
+        for stat in stat_labels:
+            tk.Label(popup, text=f"{stat}:").pack()
+            entry = tk.Entry(popup)
+            entry.pack()
+            stat_entries[stat] = entry
         
+        # Species
+        tk.Label(popup, text="Species:").pack()
+        species_var = tk.StringVar()
+        species_options = ["Human", "Elf", "Dwarf", "Halfling", "Dragonborn", "Gnome", "Half-Orc", "Tiefling", "Aasimar", "Tabaxi", "Kitsune", "Yuan-ti", "Shifter", "Harpy"]
+        ttk.Combobox(popup, textvariable=species_var, values=species_options, state="readonly").pack()
+
+        # Alignment
+        tk.Label(popup, text="Alignment:").pack()
+        alignment_var = tk.StringVar()
+        alignment_options = [
+            "Lawful Good", "Neutral Good", "Chaotic Good",
+            "Lawful Neutral", "True Neutral", "Chaotic Neutral",
+            "Lawful Evil", "Neutral Evil", "Chaotic Evil"
+        ]
+        ttk.Combobox(popup, textvariable=alignment_var, values=alignment_options, state="readonly").pack()
+
+        # Class, Subclass, Level
+        tk.Label(popup, text="Class:").pack()
+        class_var = tk.StringVar()
+        class_options = ["Barbarian", "Bard", "Cleric", "Druid", "Fighter", "Monk", "Paladin", "Ranger", "Rogue", "Sorcerer", "Warlock", "Wizard", "Artificer"]
+        ttk.Combobox(popup, textvariable=class_var, values=class_options, state="readonly").pack()
+
+        tk.Label(popup, text="Subclass:").pack()
+        subclass_entry = tk.Entry(popup)
+        subclass_entry.pack()
+
+        tk.Label(popup, text="Level:").pack()
+        level_entry = tk.Entry(popup)
+        level_entry.pack()
+
+        is_multiclass = tk.BooleanVar()
+        tk.Checkbutton(popup, text="Multiclass?", variable=is_multiclass).pack()
+
+        tk.Label(popup, text="Second Class:").pack()
+        second_class_var = tk.StringVar()
+        ttk.Combobox(popup, textvariable=second_class_var, values=class_options, state="readonly").pack()
+
+        tk.Label(popup, text="Second Subclass:").pack()
+        second_subclass_entry = tk.Entry(popup)
+        second_subclass_entry.pack()
+
+        tk.Label(popup, text="Second Level:").pack()
+        second_level_entry = tk.Entry(popup)
+        second_level_entry.pack()
+
         def save():
-            try:
-                name = name_entries["Name"].get().strip()
-                if not name:
-                    raise ValueError("Name is required.")
-                
-                hp = int(name_entries["HP"].get())
-                stats = {key: int(name_entries[key].get()) for key in ["STR", "DEX", "CON", "INT", "WIS", "CHA"]}
+            stats = {stat: int(stat_entries[stat].get()) for stat in stat_labels}
+            character = {
+                "name": name_entries.get(),
+                "hp": int(hp_entry.get()),
+                "stats": stats,
+                "inventory": [],
+                "equipment": {},
+                "image": None,
+                "species": species_var.get(),
+                "alignment": alignment_var.get(),
+                "class": class_var.get(),
+                "subclass": subclass_entry.get(),
+                "level": level_entry.get(),
+                "multiclass": is_multiclass.get(),
+                "second_class": second_class_var.get() if is_multiclass.get() else None,
+                "second_subclass": second_subclass_entry.get() if is_multiclass.get() else None,
+                "second_level": second_level_entry.get() if is_multiclass.get() else None
+            }
+            self.characters.append(character)
+            popup.destroy()
 
-                self.characters.append({
-                    "name": name,
-                    "hp": hp,
-                    "stats": stats,
-                    "inventory": [],
-                    "equipment": {},
-                    "image": None
-                })
-                messagebox.showinfo("Saved", f"Character '{name}' created!")
-                new_window.destroy()
-            except ValueError as e:
-                messagebox.showwarning("Invalid Input", str(e))
-
-        tk.Button(new_window, text="Save Character", command=save).pack(pady=10)
+        tk.Button(popup, text="Save Character", command=save).pack(pady=10)
 
     def view_characters(self):
-         if not self.characters:
-            messagebox.showinfo("No Characters", "No characters have been created yet.")
-            return
          view_window = tk.Toplevel(self.root)
          view_window.title("Existing Characters")
 
-         for idx, char in enumerate(self.characters): tk.Button(view_window, text=f"{char['name']} - HP: {char['hp']}", command=lambda i=idx: self.open_character_sheet(i)).pack(pady=2)
+         for i, char in enumerate(self.characters): tk.Button(view_window, text= char['name'], command=lambda i=i: self.open_character_sheet(i)).pack(pady=2)
 
     def open_character_sheet(self, index):
         character = self.characters[index]
