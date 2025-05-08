@@ -26,6 +26,17 @@ class DungeonDelversCodex:
         tk.Button(new_window, text="Save", command=lambda: self.save_character(name_entry.get())).pack()
 
     def save_character(self, name):
+        if name:
+            self.characters.append({
+                "name": name,
+                "hp": 10,
+                "stats": {"STR": 10, "DEX": 10, "CON": 10, "INT": 10, "WIS": 10, "CHA": 10},
+                "inventory": [],
+                "equipment": {}
+            })
+            messagebox.showinfo("Saved", f"Character '{name}' created!")
+        else:
+            messagebox.showwarning("Missing Name", "Please enter a name for your character.")
 
 
     def view_characters(self):
