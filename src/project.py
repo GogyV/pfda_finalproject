@@ -1,5 +1,8 @@
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import filedialog
+from tkinter import ttk
+from PIL import Image, ImageTk
 import json
 
 class DungeonDelversCodex:
@@ -27,6 +30,7 @@ class DungeonDelversCodex:
             name_entry = tk.Entry(new_window)
             name_entry.pack()
             name_entries[field] = name_entry
+
         
         def save():
             try:
@@ -42,7 +46,8 @@ class DungeonDelversCodex:
                     "hp": hp,
                     "stats": stats,
                     "inventory": [],
-                    "equipment": {}
+                    "equipment": {},
+                    "image": None
                 })
                 messagebox.showinfo("Saved", f"Character '{name}' created!")
                 new_window.destroy()
@@ -83,7 +88,7 @@ class DungeonDelversCodex:
             tk.Button(stat_frame, text="-", command=lambda s=stat, l=label: self.adjust_stat(character, s, -1, l)).pack(side=tk.LEFT)
 
         tk.Label(sheet, text="Inventory:", font=("Rage Italic", 50, "underline")).pack(pady=(10, 5))
-        inv_box = tk.Listbox(sheet, height=20, width=60)
+        inv_box = tk.Listbox(sheet, height=10, width=30)
         inv_box.pack()
 
         for item in character["inventory"]:
@@ -91,6 +96,37 @@ class DungeonDelversCodex:
         
         item_entry = tk.Entry(sheet)
         item_entry.pack(pady=5)
+
+        img_frame = tk.Frame(sheet)
+        img_frame.pack(pady=10)
+
+        def load_profile_image(path):
+            img = Image.open(path)
+            img = img.resize((300, 300))
+            return ImageTk.PhotoImage(img)
+        image_label = tk.Label(img_frame)
+        image_label.pack()
+
+        if character.get("image"):
+            try:
+                photo = load_profile_image(character["image"])
+                image_label.config(image=photo)
+                image_label.image = photo
+            except:
+                image_label.config(text="Image not found")
+        
+        def upload_image():
+            filepath = filedialog.askopenfilename(
+                title="Select Profile Picture",
+                filetypes=[("Image Files", "*.png *.jpg *.jpeg *.gif")]
+            )
+            if filepath:
+                character["image"] = filepath
+                photo = load_profile_image(filepath)
+                image_label.config(image=photo)
+                image_label.image = photo
+        tk.Button(img_frame, text="Upload Profile Picture", command=upload_image).pack()
+
 
         def add_item():
             item = item_entry.get().strip()
