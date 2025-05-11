@@ -2,7 +2,7 @@
 The Dungeon Delver's Codex
 
 ## Demo
-Demo Video: <URL>
+Demo Video: <https://youtu.be/W6OdeinN5Lk
 
 ## GitHub Repository
 GitHub Repo: <https://github.com/GogyV/pfda_finalproject
